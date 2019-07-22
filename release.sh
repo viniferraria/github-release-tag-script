@@ -1,18 +1,20 @@
 #!/bin/bash
 access_token=efef76433f27e09568a91e58deaf025f295e45aa
 
-tag_name_patch=3
-tag_name_minor=2
-tag_name_major=1
+tag_name_patch=5
+tag_name_minor=5
+tag_name_major=6
+
+repository_name=undefined
 
 echo -n "Do you want to type the tag name? (y/n) "
-read answer
-while [ $answer != "y" ] && [ $answer != "n" ]
+read type_tag
+while [ $type_tag != "y" ] && [ $type_tag != "n" ]
 do
     echo -n "Do you want to type the tag name? (y/n) "
-    read answer
+    read type_tag
 done
-if [[ $answer == "y" ]]; then
+if [[ $type_tag == "y" ]]; then
     echo -n "Major: "
     read tag_name_major
     echo -n "Minor: "
@@ -40,7 +42,7 @@ else
         tag_name_patch=$(($tag_name_patch + 1))
         sed -i "4s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
     elif [[ $tag_increment == 'm' ]];then
-        tag_name_major=$(($tag_name_minor + 1))
+        tag_name_minor=$(($tag_name_minor + 1))
         sed -i "5s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
     else
         tag_name_major=$(($tag_name_major + 1))
@@ -50,6 +52,8 @@ else
 fi
 
 tag_name=""$tag_name_major"."$tag_name_minor"."$tag_name_patch""
+
+echo "Version $tag_name"
 
 echo -n "Target commitish: "
 read target_commitish
@@ -101,6 +105,28 @@ else
     prerelease=false
 fi
 
+if [[ $repository_name == undefined ]]; then
+    echo -n "Repository name: "
+    read new_repository
+    sed -i "8s/.*repository_name.*/repository_name=$new_repository/" release.sh
+    repository_name=$new_repository
+else
+    echo -n "Do you want to change the repo?"
+    read change_repo
+    while [ "$change_repo" != "y" ] && [ "$change_repo" != "n" ]
+    do
+        echo -n "Do you want to change the repo?"
+        read change_repo
+    done
+    if [[ $change_repo == 'y' ]]; then
+        echo -n "Repository: "
+        read new_repository
+        sed -i "8s/.*repository_name.*/repository_name=$repository_name/" release.sh
+        repository_name=$new_repository
+    fi
+fi
+
+
 if [[ $access_token == "0" ]]; then
     echo -n "Access token: "
     read new_token
@@ -120,7 +146,7 @@ echo '{
 echo -n "Do you want to confirm? (y/n): "
 read confirmation
 if [[ $confirmation == "y" ]]; then
-    curl -d '{"tag_name": "'"${tag_name}"'","target_commitish": "'"${target_commitish}"'","name": "'"${name}"'","body": "'"${body}"'","draft": '$draft',"prerelease": '$prerelease'}' https://api.github.com/repos/cdt-baas/m2y_lib_android/releases?access_token=$access_token
+    curl -d '{"tag_name": "'"${tag_name}"'","target_commitish": "'"${target_commitish}"'","name": "'"${name}"'","body": "'"${body}"'","draft": '$draft',"prerelease": '$prerelease'}' https://api.github.com/repos/cdt-baas/$repository_name/releases?access_token=$access_token
 else
     echo "Closing..."
 fi
