@@ -5,11 +5,11 @@ tag_name_patch=3
 tag_name_minor=2
 tag_name_major=1
 
-echo -n "Do you want to type the tag name? (y/n)"
+echo -n "Do you want to type the tag name? (y/n) "
 read answer
 while [ $answer != "y" ] && [ $answer != "n" ]
 do
-    echo -n "Do you want to type the tag name? (y/n)"
+    echo -n "Do you want to type the tag name? (y/n) "
     read answer
 done
 if [[ $answer == "y" ]]; then
@@ -23,17 +23,17 @@ if [[ $answer == "y" ]]; then
     sed -i "5s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
     sed -i "6s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
 else
-     echo -e "Version upgrade?
-p (Patch == + x.x.1)
-m (Minor == + x.1.x)
-mj (Major == + 1.x.x)"
+    echo "p (Patch == + x.x.1)"
+    echo "m (Minor == + x.1.x)"
+    echo "mj (Major == + 1.x.x)"
+    echo -e "Version upgrade?"
     read tag_increment
     while [ "$tag_increment" != "p" ] && [ "$tag_increment" != "m" ] && [ "$tag_increment" != "mj" ]
     do
-echo -e "Version upgrade?
-p (Patch == + 0.0.1)
-m (Minor == + 0.1.0)
-mj (Major == + 1.0.0)"
+    echo "p (Patch == + 0.0.1)"
+    echo "m (Minor == + 0.1.0)"
+    echo "mj (Major == + 1.0.0)"
+    echo -e "Version upgrade?"
         read tag_increment
     done 
     if [[ $tag_increment == 'p' ]];then
