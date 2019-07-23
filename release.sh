@@ -2,9 +2,10 @@
 access_token=efef76433f27e09568a91e58deaf025f295e45aa
 
 tag='v'
-tag_name_major=1
+tag_name_major=3
 tag_name_minor=2
 tag_name_patch=3
+tag_complement=''
 
 repository_name=m2y_lib_android
 
@@ -66,7 +67,11 @@ else
 fi
 
 
-tag_name=""$tag""$tag_name_major"."$tag_name_minor"."$tag_name_patch""
+echo -n "Tag complement: "
+read tag_complement
+
+
+tag_name=""$tag""$tag_name_major"."$tag_name_minor"."$tag_name_patch""$tag_complement""
 echo "Version $tag_name"
 
 
