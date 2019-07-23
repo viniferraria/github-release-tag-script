@@ -2,15 +2,14 @@
 access_token=efef76433f27e09568a91e58deaf025f295e45aa
 
 tag='v'
-tag_name_major=3
-tag_name_minor=2
-tag_name_patch=3
-tag_complement=''
+tag_name_major=''
+tag_name_minor=''
+tag_name_patch=''
 
-repository_name=m2y_lib_android
+repository_name=''
 
-if [[ $tag_name_patch == 'x' ]] && [[ $tag_name_minor == 'x' ]] && [[ $tag_name_major == 'x' ]]; then
-    echo "Tag name: "
+if [[ $tag_name_patch == '' ]] && [[ $tag_name_minor == '' ]] && [[ $tag_name_major == '' ]]; then
+    echo "Tag name"
     echo -n "Major: "
     read tag_name_major
     echo -n "Minor: "
@@ -39,6 +38,7 @@ else
         sed -i "6s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
         sed -i "7s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
     else
+        echo "Latest version: "$tag_name_major"."$tag_name_minor"."$tag_name_patch""
         echo "mj (Major == + 1.x.x)"
         echo "m (Minor == + x.1.x)"
         echo "p (Patch == + x.x.1)"
@@ -67,21 +67,22 @@ else
 fi
 
 
-echo -n "Tag complement: "
-read tag_complement
+echo -n "Tag sufix: (ex: '-alpha')"
+read tag_sufix
 
-
-tag_name=""$tag""$tag_name_major"."$tag_name_minor"."$tag_name_patch""$tag_complement""
+tag_name=""$tag""$tag_name_major"."$tag_name_minor"."$tag_name_patch""$tag_sufix""
 echo "Version $tag_name"
 
 
-echo -n "Target commitish: "
+echo -n "Target commitish: (ex: branch name) "
 read target_commitish
 
 
-echo -n "Name: "
+echo -n "Name: (default: $tag_name)"
 read name
-
+if [[ $name == '' ]]; then
+    name="$tag_name"
+fi
 
 echo -n "Body? (y/n) "
 read body
@@ -127,10 +128,10 @@ fi
 
 
 
-if [[ $repository_name == 'undefined' ]]; then
+if [[ $repository_name == '' ]]; then
     echo -n "Repository name: "
     read new_repository
-    sed -i "8s/.*repository_name.*/repository_name=$new_repository/" release.sh
+    sed -i "9s/.*repository_name.*/repository_name=$new_repository/" release.sh
     repository_name=$new_repository
 else
     echo -n "Do you want to change the repository? (y/n) "
@@ -143,7 +144,7 @@ else
     if [[ $change_repo == 'y' ]]; then
         echo -n "Repository: "
         read new_repository
-        sed -i "8s/.*repository_name.*/repository_name=$repository_name/" release.sh
+        sed -i "9s/.*repository_name.*/repository_name=$new_repository/" release.sh
         repository_name=$new_repository
     fi
 fi
