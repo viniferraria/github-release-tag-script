@@ -1,20 +1,14 @@
 #!/bin/bash
 access_token=efef76433f27e09568a91e58deaf025f295e45aa
 
-tag_name_patch=5
-tag_name_minor=5
-tag_name_major=6
+tag_name_patch=3
+tag_name_minor=2
+tag_name_major=v1
 
-repository_name=undefined
+repository_name=m2y_lib_android
 
-echo -n "Do you want to type the tag name? (y/n) "
-read type_tag
-while [ $type_tag != "y" ] && [ $type_tag != "n" ]
-do
-    echo -n "Do you want to type the tag name? (y/n) "
-    read type_tag
-done
-if [[ $type_tag == "y" ]]; then
+if [[ $tag_name_patch == 'x' ]] && [[ $tag_name_minor == 'x' ]] && [[ $tag_name_major == 'x' ]]; then
+    echo "Tag name: "
     echo -n "Major: "
     read tag_name_major
     echo -n "Minor: "
@@ -25,29 +19,48 @@ if [[ $type_tag == "y" ]]; then
     sed -i "5s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
     sed -i "6s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
 else
-    echo "p (Patch == + x.x.1)"
-    echo "m (Minor == + x.1.x)"
-    echo "mj (Major == + 1.x.x)"
-    echo -e "Version upgrade?"
-    read tag_increment
-    while [ "$tag_increment" != "p" ] && [ "$tag_increment" != "m" ] && [ "$tag_increment" != "mj" ]
+    echo -n "Do you want to type the tag name? (y/n) "
+    read type_tag
+    while [ $type_tag != "y" ] && [ $type_tag != "n" ]
     do
-    echo "p (Patch == + 0.0.1)"
-    echo "m (Minor == + 0.1.0)"
-    echo "mj (Major == + 1.0.0)"
-    echo -e "Version upgrade?"
-        read tag_increment
-    done 
-    if [[ $tag_increment == 'p' ]];then
-        tag_name_patch=$(($tag_name_patch + 1))
+        echo -n "Do you want to type the tag name? (y/n) "
+        read type_tag
+    done
+    if [[ $type_tag == "y" ]]; then
+        echo -n "Major: "
+        read tag_name_major
+        echo -n "Minor: "
+        read tag_name_minor
+        echo -n "Patch: "
+        read tag_name_patch
         sed -i "4s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
-    elif [[ $tag_increment == 'm' ]];then
-        tag_name_minor=$(($tag_name_minor + 1))
         sed -i "5s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
-    else
-        tag_name_major=$(($tag_name_major + 1))
         sed -i "6s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
+    else
+        echo "p (Patch == + x.x.1)"
+        echo "m (Minor == + x.1.x)"
+        echo "mj (Major == + 1.x.x)"
+        echo -e "Version upgrade?"
+        read tag_increment
+        while [ "$tag_increment" != "p" ] && [ "$tag_increment" != "m" ] && [ "$tag_increment" != "mj" ]
+        do
+        echo "p (Patch == + 0.0.1)"
+        echo "m (Minor == + 0.1.0)"
+        echo "mj (Major == + 1.0.0)"
+        echo -e "Version upgrade?"
+            read tag_increment
+        done 
+        if [[ $tag_increment == 'p' ]];then
+            tag_name_patch=$(($tag_name_patch + 1))
+            sed -i "4s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
+        elif [[ $tag_increment == 'm' ]];then
+            tag_name_minor=$(($tag_name_minor + 1))
+            sed -i "5s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
+        else
+            tag_name_major=$(($tag_name_major + 1))
+            sed -i "6s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
 
+        fi
     fi
 fi
 
@@ -105,13 +118,13 @@ else
     prerelease=false
 fi
 
-if [[ $repository_name == undefined ]]; then
+if [[ $repository_name == 'undefined' ]]; then
     echo -n "Repository name: "
     read new_repository
     sed -i "8s/.*repository_name.*/repository_name=$new_repository/" release.sh
     repository_name=$new_repository
 else
-    echo -n "Do you want to change the repo?"
+    echo -n "Do you want to change the repository?"
     read change_repo
     while [ "$change_repo" != "y" ] && [ "$change_repo" != "n" ]
     do
@@ -141,6 +154,7 @@ echo '{
     "body": "'"${body}"'",
     "draft": '$draft',
     "prerelease": '$prerelease'
+    "repository name": '$repository_name'
 }'   
 
 echo -n "Do you want to confirm? (y/n): "
