@@ -1,5 +1,8 @@
 #!/bin/bash
-access_token=efef76433f27e09568a91e58deaf025f295e45aa
+source github_access_token
+#access_token 
+
+access_token=''
 
 tag='v'
 tag_name_major=''
@@ -16,9 +19,9 @@ if [[ $tag_name_patch == '' ]] && [[ $tag_name_minor == '' ]] && [[ $tag_name_ma
     read tag_name_minor
     echo -n "Patch: "
     read tag_name_patch
-    sed -i "5s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
-    sed -i "6s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
-    sed -i "7s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
+    sed -i "0,/.*tag_name_major.*/s//tag_name_major=$tag_name_major/" release.sh
+    sed -i "0,/.*tag_name_minor.*/s//tag_name_minor=$tag_name_minor/" release.sh
+    sed -i "0,/.*tag_name_patch.*/s//tag_name_patch=$tag_name_patch/" release.sh
 else
     echo -n "Do you want to type the tag name? (y/n) "
     read type_tag
@@ -34,55 +37,56 @@ else
         read tag_name_minor
         echo -n "Patch: "
         read tag_name_patch
-        sed -i "5s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
-        sed -i "6s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
-        sed -i "7s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
+        sed -i "0,/.*tag_name_major.*/s//tag_name_major=$tag_name_major/" release.sh
+        sed -i "0,/.*tag_name_minor.*/s//tag_name_minor=$tag_name_minor/" release.sh
+        sed -i "0,/.*tag_name_patch.*/s//tag_name_patch=$tag_name_patch/" release.sh
     else
         echo "Latest version: "$tag_name_major"."$tag_name_minor"."$tag_name_patch""
         echo "mj (Major == + 1.x.x)"
         echo "m (Minor == + x.1.x)"
         echo "p (Patch == + x.x.1)"
-        echo -e "Version upgrade?"
+        echo -n "Version upgrade? "
         read tag_increment
         while [[ $tag_increment != "p" ]] && [[ $tag_increment != "m" ]] && [[ $tag_increment != "mj" ]]
         do
             echo "mj (Major == + 1.0.0)"
             echo "m (Minor == + 0.1.0)"
             echo "p (Patch == + 0.0.1)"
-            echo -e "Version upgrade?"
+            echo -n "Version upgrade? "
             read tag_increment
         done 
         if [[ $tag_increment == 'p' ]];then
             tag_name_patch=$(($tag_name_patch + 1))
-            sed -i "7s/.*tag.*/tag_name_patch=$tag_name_patch/" release.sh
+            sed -i "0,/.*tag_name_patch.*/s//tag_name_patch=$tag_name_patch/" release.sh
         elif [[ $tag_increment == 'm' ]];then
             tag_name_minor=$(($tag_name_minor + 1))
-            sed -i "6s/.*tag.*/tag_name_minor=$tag_name_minor/" release.sh
+            sed -i "0,/.*tag_name_minor.*/s//tag_name_minor=$tag_name_minor/" release.sh
         else
             tag_name_major=$(($tag_name_major + 1))
-            sed -i "5s/.*tag.*/tag_name_major=$tag_name_major/" release.sh
+            sed -i "0,/.*tag_name_major.*/s//tag_name_major=$tag_name_major/" release.sh
 
         fi
     fi
 fi
 
 
-echo -n "Tag sufix: (ex: '-alpha')"
+echo -n "Tag sufix (ex:'-alpha'): "
 read tag_sufix
 
 tag_name=""$tag""$tag_name_major"."$tag_name_minor"."$tag_name_patch""$tag_sufix""
-echo "Version $tag_name"
+echo "New version: $tag_name"
 
 
-echo -n "Target commitish: (ex: branch name) "
+echo -n "Target commitish (ex: branch name): "
 read target_commitish
 
 
-echo -n "Name: (default: $tag_name)"
+echo -n "Name (default: $tag_name): "
 read name
 if [[ $name == '' ]]; then
     name="$tag_name"
 fi
+
 
 echo -n "Body? (y/n) "
 read body
@@ -127,11 +131,10 @@ else
 fi
 
 
-
 if [[ $repository_name == '' ]]; then
     echo -n "Repository name: "
     read new_repository
-    sed -i "9s/.*repository_name.*/repository_name=$new_repository/" release.sh
+    sed -i "0,/.*repository_name.*/s//repository_name=$new_repository/" release.sh
     repository_name=$new_repository
 else
     echo -n "Do you want to change the repository? (y/n) "
@@ -144,18 +147,20 @@ else
     if [[ $change_repo == 'y' ]]; then
         echo -n "Repository: "
         read new_repository
-        sed -i "9s/.*repository_name.*/repository_name=$new_repository/" release.sh
+        sed -i "0,/.*repository_name.*/s//repository_name=$new_repository/" release.sh
         repository_name=$new_repository
     fi
 fi
 
 
-if [[ $access_token == "0" ]]; then
+if [[ $access_token == '' ]]; then
     echo -n "Access token: "
     read new_token
-    sed -i "2s/.*access_token.*/access_token=$new_token/" release.sh
+    echo access_token=$new_token >> github_access_token
+    sed -i "0,/.*access_token=''.*/s//access_token=$"access_token"/" release.sh
     access_token=$new_token
 fi 
+
 
 echo '{
     "tag_name": "'"${tag_name}"'",
@@ -166,6 +171,7 @@ echo '{
     "prerelease": '$prerelease'
     "repository name": '$repository_name'
 }'   
+
 
 echo -n "Do you want to confirm? (y/n): "
 read confirmation
