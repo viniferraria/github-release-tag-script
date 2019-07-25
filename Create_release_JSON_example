@@ -1,0 +1,1 @@
+curl --data '{"tag_name": "v1.0.1","target_commitish": "testing-release","name": "v1.0.1","body": "Release of version 1.0.1","draft": false,"prerelease": true}' https://api.github.com/repos/cdt-baas/m2y_lib_android/releases?access_token=efef76433f27e09568a91e58deaf025f295e45aa
