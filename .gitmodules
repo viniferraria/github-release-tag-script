@@ -1,0 +1,3 @@
+[submodule "release_version"]
+	path = release_version
+	url = https://github.com/viniferraria/release_version.git
